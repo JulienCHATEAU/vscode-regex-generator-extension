@@ -1,0 +1,55 @@
+body {
+	background-color: transparent;
+}
+
+.title {
+	font-size: 16px;
+	font-style: italic;
+	text-decoration: underline;
+}
+
+.initialText {
+	border: dotted 1px white;
+	text-align: center;
+	padding: 5px;
+	margin-top: 10px;
+	font-size: 18px;
+}
+
+.character {
+	cursor: pointer;
+	color: white;
+}
+
+.validateLabel {
+	margin-top: 25px;
+}
+
+.commonLabel {
+	margin-top: 15px;
+	background-color: white;
+	color: black;
+}
+
+.variableLabel {
+	background-color: orange
+}
+
+.optionalLabel {
+	background-color: green;
+}
+
+
+/* 
+.commonLabel:hover {
+	background: lightgray;
+}
+
+.variableLabel:hover {
+	background: lightblue;
+}
+
+
+.optionalLabel:hover {
+	background: rosybrown;
+} */
