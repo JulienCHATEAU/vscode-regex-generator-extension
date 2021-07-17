@@ -1,18 +1,62 @@
 body {
 	background-color: transparent;
+	font-size: 15px;
 }
 
 .title {
-	font-size: 16px;
-	font-style: italic;
-	text-decoration: underline;
+	font-size: 17px;
+	/* text-decoration: underline; */
+}
+
+.generatedFindRegex {
+	font-weight: 700;
+	margin-top: 10px;
+	text-align: center;
+	font-size: 20px;
 }
 
 .initialText {
-	border: dotted 1px white;
+	border: dotted 1px var(--vscode-foreground);
+	font-weight: 800;
 	text-align: center;
-	padding: 5px;
+	padding: 8px;
 	margin-top: 10px;
+	font-size: 18px;
+}
+
+button {
+	margin-top: 5px;
+}
+
+.generationTools {
+	visibility: hidden;
+}
+
+.labels {
+	margin-top: 5px;
+	border: solid 1px var(--vscode-foreground);
+	text-align: center;
+	padding: 10px;
+}
+
+.labels button {
+	width: auto;
+}
+
+.submenu {
+	margin-top: 30px;
+}
+
+.subtitles {
+	margin-bottom: 10px;
+	text-decoration: underline;
+}
+
+button.validateText {
+	margin-top: 5px;
+}
+
+input.validateText {
 	font-size: 18px;
 }
 
@@ -21,35 +65,30 @@ body {
 	color: white;
 }
 
-.validateLabel {
-	margin-top: 25px;
-}
-
 .commonLabel {
-	margin-top: 15px;
 	background-color: white;
 	color: black;
 }
 
 .variableLabel {
-	background-color: orange
+	background-color: orange;
+	color: black;
 }
 
 .optionalLabel {
-	background-color: green;
+	background-color: greenyellow;
+	color: black;
 }
 
-
-/* 
 .commonLabel:hover {
 	background: lightgray;
 }
 
 .variableLabel:hover {
-	background: lightblue;
+	background: lightcoral;
 }
 
 
 .optionalLabel:hover {
-	background: rosybrown;
-} */
+	background: lightgreen;
+}

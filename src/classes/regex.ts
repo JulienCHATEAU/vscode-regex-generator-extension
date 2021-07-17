@@ -10,14 +10,16 @@ export class Regex {
   private _regexBlocks: RegexCharacterBlock[]
 
   constructor(initialText: string = "") {
-    this._initialText = initialText.replace(/ /g, "˽")
+    this._initialText = ""
     this._regex = []
     this._regexBlocks = []
-    this.initFrom(this._initialText)
+    this.initFrom(initialText)
   }
 
-  private initFrom(text: string) {
-    for (const char of text) {
+  public initFrom(text: string) {
+    this._initialText = text.replace(/ /g, "˽")
+    this._regex = []
+    for (const char of this._initialText) {
       const regexChar = new RegexCharacter(char)
       this._regex.push(regexChar)
     }
@@ -72,6 +74,7 @@ export class Regex {
   }
   public set initialText(value: string) {
     this._initialText = value;
+
   }
 
 }

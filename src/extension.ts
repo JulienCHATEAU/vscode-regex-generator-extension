@@ -12,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "regex_generator_interface" is now active!');
+	console.log(getSelectedText())
 	const provider = new ColorsViewProvider(context.extensionUri)
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider(ColorsViewProvider.viewType, provider))
 
@@ -42,7 +43,7 @@ class ColorsViewProvider implements vscode.WebviewViewProvider {
 		_token: vscode.CancellationToken,
 	) {
 		this._view = webviewView;
-		this._regex = new Regex("@Column() _title: string")
+		this._regex = new Regex()
 
 		webviewView.webview.options = {
 			// Allow scripts in the webview
@@ -56,40 +57,63 @@ class ColorsViewProvider implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		webviewView.webview.onDidReceiveMessage(data => {
-			switch (data.type) {
-				case 'setLabel':
-					{
-						// if (this._regex && this._regex.initialText !== data.text) {
-						// 	console.log(data.text)
-						// 	this._regex.initialText = data.text
-						// }
-						if (this._regex) {
-							// console.log(data.text)
-							// this._regex.initialText = data.text
-							console.log(this._regex.toString())
-							console.log(data)
-							this._regex.setLabel(data.startIndex, data.endIndex, data.label)
-							console.log(this._regex.toString())
-						} else {
-							console.error("regex is empty")
+			try {
+				switch (data.type) {
+					case 'setLabel':
+						{
+							if (this._regex) {
+								console.log(this._regex.toString())
+								console.log(data)
+								this._regex.setLabel(data.startIndex, data.endIndex, data.label)
+								console.log(this._regex.toString())
+							} else {
+								console.error("regex is empty")
+							}
+							break;
 						}
-						break;
-					}
-				case 'generate':
-					{
-						console.log(this._regex?.generate())
-						break
-					}
-				case 'log':
-					{
-						console.log(data)
-						break
-					}
-				case 'error':
-					{
-						console.error(data.message)
-						break
-					}
+					case 'setText':
+						{
+							if (this._regex) {
+								console.log(data.text)
+								console.log(this._regex.toString())
+								this._regex.initFrom(data.text)
+								console.log(this._regex.toString())
+							} else {
+								console.error("regex is empty")
+							}
+							break;
+						}
+					case 'generate':
+						{
+							if (this._view && this._regex) {
+								try {
+									this._view.webview.postMessage({ type: 'generate', generatedRegex: this._regex.generate() });
+								} catch (err) {
+									console.error(err)
+								}
+							}
+							break
+						}
+					case 'getSelectedText':
+						{
+							if (this._view) {
+								this._view.webview.postMessage({ type: 'getSelectedText', selectedText: getSelectedText() });
+							}
+							break
+						}
+					case 'log':
+						{
+							console.log(data)
+							break
+						}
+					case 'error':
+						{
+							console.error(data.message)
+							break
+						}
+				}
+			} catch (err) {
+				console.error(err)
 			}
 		});
 	}
@@ -105,13 +129,16 @@ class ColorsViewProvider implements vscode.WebviewViewProvider {
 
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
-		const text = "@Column() _title: string"
-		// if (this._view) {
-		// 	console.log("yo")
-		// // 	this._regex.initialText = text
-		// 	this._view.webview.postMessage({ type: 'setInitialText', data: text });
-		// }
-		const textSpans = Array.from(text).map((char, index) => `<span class='character' id="e${index}">${(char===" ") ? "˽" : char}</span>`).join(" ")
+		const text = getSelectedText()
+		let title = "Please provide the text to work on :"
+		let textSpans = `<input class="validateText" type="text"></input>`
+		let inputTextBtn = `<button class="validateText">Validate text</button>`
+		if (text !== "") {
+			title = "Text you are working on :"
+			inputTextBtn = ""
+			textSpans = Array.from(text).map((char, index) => `<span class='character' id="e${index}">${(char===" ") ? "˽" : char}</span>`).join(" ")
+			this._regex?.initFrom(text)
+		}
 
 		return `<!DOCTYPE html>
 			<html lang="en">
@@ -135,21 +162,36 @@ class ColorsViewProvider implements vscode.WebviewViewProvider {
 			<body>
 				<ul class="color-list">
 				</ul>
-				<p class="title">Text you are working on :</p>
+				<p class="title">${title}</p>
 				<p class="initialText" value="${text}">${textSpans}</p>
-				<div>
-					<button class="commonLabel">common</button>
-					<button class="variableLabel">Variable</button>
-					<button class="optionalLabel">Optional</button>
+				<div class="validateText">${inputTextBtn}</div>
+
+				<div class="generationTools">
+					<div class="submenu">
+						<span class="subtitles">Labels :</span>
+						<div class="labels">
+							<button class="commonLabel">Common</button>
+							<button class="variableLabel">Variable</button>
+							<button class="optionalLabel">Optional</button>
+						</div>
+					</div>
+
+					<div class="submenu">
+						<button class="validateLabel">Validate label</button>
+						<button class="resetLabel">Reset labels</button>
+						<button class="generateRegex">Generate regex</button>
+					</div>
+
+					<div class="submenu">
+						<span class="subtitles">Generated find regex :</span>
+						<p class="generatedFindRegex"></p>
+					</div>
 				</div>
-				<button class="validateLabel">Validate label</button>
-				<button class="resetLabel">Reset labels</button>
-				<button class="generateRegex">Generate regex</button>
 
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;
-	}//${this._regex?.initialText}
+	}
 }
 
 function getNonce() {

@@ -5,6 +5,6 @@ export const getSelectedText = (): string => {
   if (!editor) {
     return ""; // No open text editor
   }
-  const text = editor.document.getText(editor.selection)
+  const text = editor.document.getText(editor.selection).trim()
   return text
 }

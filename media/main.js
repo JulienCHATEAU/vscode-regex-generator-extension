@@ -1,196 +1,214 @@
-//@ts-check
+// @ts-nocheck
 
 // This script will be run within the webview itself
 // It cannot access the main VS Code APIs directly.
 (function () {
-    // @ts-ignore
+
+    /* INIT */
     const vscode = acquireVsCodeApi();
     console.log = (x) => {
         vscode.postMessage({ type: 'log', x });
     }
-    
-    let initialColor
-    let labels = {
-        "white": "C",
-        "orange": "V",
-        "green": "O",
-    }
-    let commonLabelBtn = document.querySelector(".commonLabel")
-    let variableLabelBtn = document.querySelector(".variableLabel")
-    let optionalLabelBtn = document.querySelector(".optionalLabel")
-    let currentLabel = "orange"
-    // @ts-ignore
-    variableLabelBtn.style.border = "solid 3px red"
-    optionalLabelBtn.addEventListener("click", () => {
-        currentLabel = "green"
-        selectElements(firstClickIndex, secondClickIndex)
-        // @ts-ignore
-        commonLabelBtn.style.border = ""
-        // @ts-ignore
-        variableLabelBtn.style.border = ""
-        // @ts-ignore
-        optionalLabelBtn.style.border = "solid 3px red"
-    })
-    variableLabelBtn.addEventListener("click", () => {
-        currentLabel = "orange"
-        selectElements(firstClickIndex, secondClickIndex)
-        // @ts-ignore
-        commonLabelBtn.style.border = ""
-        // @ts-ignore
-        variableLabelBtn.style.border = "solid 3px red"
-        // @ts-ignore
-        optionalLabelBtn.style.border = ""
-    })
-    commonLabelBtn.addEventListener("click", () => {
-        currentLabel = "white"
-        selectElements(firstClickIndex, secondClickIndex)
-        // @ts-ignore
-        commonLabelBtn.style.border = "solid 3px red"
-        // @ts-ignore
-        variableLabelBtn.style.border = ""
-        // @ts-ignore
-        optionalLabelBtn.style.border = ""
-    })
 
-    
-    let elements = document.querySelectorAll('.character')
-    let resetLabels = document.querySelector(".resetLabel")
-    resetLabels.addEventListener("click", () => {
-        currentLabel = "white"
-        if (firstClickIndex !== -1) {
-            // @ts-ignore
-            elements[firstClickIndex].style.textDecoration = "none"
-            // @ts-ignore
-            elements[secondClickIndex].style.textDecoration = "none"
-        }
-        selectElements(0, elements.length-1)
-        // @ts-ignore
-        commonLabelBtn.style.border = "solid 3px red"
-        // @ts-ignore
-        variableLabelBtn.style.border = ""
-        // @ts-ignore
-        optionalLabelBtn.style.border = ""
-        initClickIndexes()
-        // @ts-ignore
-        generateRegex.style.visibility = "visible"
-        vscode.postMessage({ type: 'setLabel', startIndex: 0, endIndex: elements.length-1, label: labels[currentLabel] });
-    })
-
-    let generateRegex = document.querySelector(".generateRegex")
-    generateRegex.addEventListener("click", () => {
-        vscode.postMessage({ type: 'generate' });
-    })
-
-    
-    // @ts-ignore
-    let initialFontWeigth = elements[0].style.fontWeight
-    
-    let selectElements = (start, end) => {
-        for (let i = start; i <= end; i++) {
-            if (start === -1) {
-                return
-            }
-            const element = elements[i];
-            selectElement(element)
-        }
-    }
-
-    let selectElement = (element) => {
-        element.style.color = currentLabel
-        if (currentLabel !== "white") {
-            element.style.fontWeight = "900"
-        } else {
-            element.style.fontWeight = initialFontWeigth
-        }
-    }
-
-    // @ts-ignore
-    let deselectElements = (start, end) => {
-        for (let i = start; i <= end; i++) {
-            const element = elements[i];
-            // @ts-ignore
-            element.style.textDecoration = "none"
-            // @ts-ignore
-            element.style.fontWeight = initialFontWeigth
-            // @ts-ignore
-            element.style.color = initialColor;
-        }
-    }
-
-    let firstClickIndex = -1
-    let secondClickIndex = -1
-
-    let initClickIndexes = () => {
-        firstClickIndex = -1
-        secondClickIndex = -1
-    }
-    
-    let updateClicksIndex = (index) => {
-        console.log(index)
-        // @ts-ignore
-        generateRegex.style.visibility = "hidden"
-        if (firstClickIndex !== -1) {
-            // @ts-ignore
-            elements[firstClickIndex].style.textDecoration = "none"
-            // @ts-ignore
-            elements[secondClickIndex].style.textDecoration = "none"
-        }
-        if (firstClickIndex === -1) {
-            firstClickIndex = index
-            secondClickIndex = index
-        } else {
-            if (firstClickIndex === index) {
-                deselectElements(firstClickIndex, secondClickIndex)
-                initClickIndexes()
-                // @ts-ignore
-                generateRegex.style.visibility = "visible"
-            } else if (secondClickIndex === index) {
-                deselectElements(firstClickIndex + 1, secondClickIndex)
-                secondClickIndex = firstClickIndex
-            } else if (firstClickIndex < index) {
-                if (index < secondClickIndex) {
-                    deselectElements(index, secondClickIndex)
+    try {
+        /* SELECTION UTIL */
+        let elements = []
+        
+        let selectElements = (start, end) => {
+            for (let i = start; i <= end; i++) {
+                if (start === -1) {
+                    return
                 }
-                secondClickIndex = index
-            } else if (index < firstClickIndex) {
-                firstClickIndex = index
+                const element = elements[i];
+                selectElement(element)
             }
         }
-        if (firstClickIndex !== -1) {
-            // @ts-ignore
-            elements[firstClickIndex].style.textDecoration = "underline"
-            // @ts-ignore
-            elements[secondClickIndex].style.textDecoration = "underline"
-        }
-        selectElements(firstClickIndex, secondClickIndex)
-    }
 
-    elements.forEach((el, index) => {
-      // @ts-ignore
-      initialColor = elements[0].style.color
-      el.addEventListener('click', () => {
-        try {
-            updateClicksIndex(index)
-        } catch (err) {
-            vscode.postMessage({ type: 'error', message: "Error : " + err });
+        let selectElement = (element) => {
+            element.style.color = currentLabel
         }
-      })
-    })
 
-    document.querySelector('.validateLabel').addEventListener('click', () => {
-        try {
-            vscode.postMessage({ type: 'setLabel', startIndex: firstClickIndex, endIndex: secondClickIndex, label: labels[currentLabel] });
-            // @ts-ignore
-            elements[firstClickIndex].style.textDecoration = "none"
-            // @ts-ignore
-            elements[secondClickIndex].style.textDecoration = "none"
+        let deselectElements = (start, end) => {
+            for (let i = start; i <= end; i++) {
+                const element = elements[i];
+                element.style.textDecoration = "none"
+                element.style.color = initialColor;
+            }
+        }
+
+        let firstClickIndex = -1
+        let secondClickIndex = -1
+
+        let initClickIndexes = () => {
+            firstClickIndex = -1
+            secondClickIndex = -1
+        }
+        
+        let updateClicksIndex = (index) => {
+            console.log(index)
+            generateRegex.style.visibility = "hidden"
+            if (firstClickIndex !== -1) {
+                elements[firstClickIndex].style.textDecoration = "none"
+                elements[secondClickIndex].style.textDecoration = "none"
+            }
+            if (firstClickIndex === -1) {
+                firstClickIndex = index
+                secondClickIndex = index
+            } else {
+                if (firstClickIndex === index) {
+                    deselectElements(firstClickIndex, secondClickIndex)
+                    initClickIndexes()
+                    generateRegex.style.visibility = "visible"
+                } else if (secondClickIndex === index) {
+                    deselectElements(firstClickIndex + 1, secondClickIndex)
+                    secondClickIndex = firstClickIndex
+                } else if (firstClickIndex < index) {
+                    if (index < secondClickIndex) {
+                        deselectElements(index, secondClickIndex)
+                    }
+                    secondClickIndex = index
+                } else if (index < firstClickIndex) {
+                    firstClickIndex = index
+                }
+            }
+            if (firstClickIndex !== -1) {
+                elements[firstClickIndex].style.textDecoration = "overline"
+                elements[secondClickIndex].style.textDecoration = "overline"
+            }
+            selectElements(firstClickIndex, secondClickIndex)
+        }
+        
+
+        /* INIT ELEMENTS */
+
+        let initialColor
+        const initElements = () => {
+            elements = document.querySelectorAll('.character')
+            elements.forEach((el, index) => {
+                initialColor = elements[0].style.color
+                el.addEventListener('click', () => {
+                try {
+                    updateClicksIndex(index)
+                } catch (err) {
+                    vscode.postMessage({ type: 'error', message: "Error : " + err });
+                }
+                })
+            })
+        }
+        initElements()
+
+        /* LISTENERS */
+
+        let labels = {
+            "white": "C",
+            "orange": "V",
+            "green": "O",
+        }
+        let commonLabelBtn = document.querySelector(".commonLabel")
+        let variableLabelBtn = document.querySelector(".variableLabel")
+        let optionalLabelBtn = document.querySelector(".optionalLabel")
+        let currentLabel = "orange"
+        variableLabelBtn.style.border = "solid 3px red"
+        optionalLabelBtn.addEventListener("click", () => {
+            currentLabel = "green"
+            selectElements(firstClickIndex, secondClickIndex)
+            commonLabelBtn.style.border = ""
+            variableLabelBtn.style.border = ""
+            optionalLabelBtn.style.border = "solid 3px red"
+        })
+        variableLabelBtn.addEventListener("click", () => {
+            currentLabel = "orange"
+            selectElements(firstClickIndex, secondClickIndex)
+            commonLabelBtn.style.border = ""
+            variableLabelBtn.style.border = "solid 3px red"
+            optionalLabelBtn.style.border = ""
+        })
+        commonLabelBtn.addEventListener("click", () => {
+            currentLabel = "white"
+            selectElements(firstClickIndex, secondClickIndex)
+            commonLabelBtn.style.border = "solid 3px red"
+            variableLabelBtn.style.border = ""
+            optionalLabelBtn.style.border = ""
+        })
+
+        let inputText = document.querySelector("input.validateText")
+        const setInitialText = (text) => {
+            vscode.postMessage({ type: 'setText', text: text });
+            const parsedText = text.replace(/ /g, "˽")
+            const spans = Array.from(parsedText).map((char, index) => `<span class='character' id="e${index}">${(char===" ") ? "˽" : char}</span>`).join(" ")
+            document.querySelector(".initialText").innerHTML = spans
+            initElements()
+            document.querySelector(".title").innerHTML = "Text you are working on :"
+            document.querySelector("div.validateText").innerHTML = ""
+            document.querySelector(".generationTools").style.visibility = "visible"
+        }
+        let validateText = document.querySelector("button.validateText")
+        validateText.addEventListener("click", () => {
+            if (inputText.value.trim() !== "") {
+                setInitialText(inputText.value)
+            } else {
+                inputText.value = ""
+            }
+        })
+
+        let resetLabels = document.querySelector(".resetLabel")
+        resetLabels.addEventListener("click", () => {
+            currentLabel = "white"
+            if (firstClickIndex !== -1) {
+                elements[firstClickIndex].style.textDecoration = "none"
+                elements[secondClickIndex].style.textDecoration = "none"
+            }
+            selectElements(0, elements.length-1)
             initClickIndexes()
-            // @ts-ignore
             generateRegex.style.visibility = "visible"
-        } catch (err) {
-            vscode.postMessage({ type: 'error', message: "Error : " + err });
-        }
-    });
+            vscode.postMessage({ type: 'setLabel', startIndex: 0, endIndex: elements.length-1, label: labels[currentLabel] });
+            currentLabel = "orange"
+            commonLabelBtn.style.border = ""
+            variableLabelBtn.style.border = "solid 3px red"
+            optionalLabelBtn.style.border = ""
+        })
+
+        let generateRegex = document.querySelector(".generateRegex")
+        generateRegex.addEventListener("click", () => {
+            vscode.postMessage({ type: 'generate' });
+        })
+
+        const validateLabel = document.querySelector('.validateLabel')
+        validateLabel.addEventListener('click', () => {
+            try {
+                if (firstClickIndex !== -1) {
+                    vscode.postMessage({ type: 'setLabel', startIndex: firstClickIndex, endIndex: secondClickIndex, label: labels[currentLabel] });
+                    elements[firstClickIndex].style.textDecoration = "none"
+                    elements[secondClickIndex].style.textDecoration = "none"
+                    initClickIndexes()
+                    generateRegex.style.visibility = "visible"
+                }
+            } catch (err) {
+                vscode.postMessage({ type: 'error', message: "Error : " + err });
+            }
+        });
+
+        window.addEventListener('message', event => {
+            const message = event.data; // The json data that the extension sent
+            switch (message.type) {
+                case 'getSelectedText':
+                    {
+                        if (message.selectedText !== "") {
+                            setInitialText(message.selectedText)
+                        }
+                        break;
+                    }
+                case 'generate':
+                    {
+                        document.querySelector(".generatedFindRegex").innerHTML = message.generatedRegex
+                        break;
+                    }
+            }
+        });
+        vscode.postMessage({ type: 'getSelectedText' });
+    } catch (err) {
+        console.log("Error in js : " + err)
+    }
 
 }());
 
