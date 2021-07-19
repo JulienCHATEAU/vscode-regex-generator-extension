@@ -72,8 +72,11 @@
                 }
             }
             if (firstClickIndex !== -1) {
+                validateLabel.style.visibility = "visible"
                 elements[firstClickIndex].style.textDecoration = "overline"
                 elements[secondClickIndex].style.textDecoration = "overline"
+            } else {
+                validateLabel.style.visibility = "hidden"
             }
             selectElements(firstClickIndex, secondClickIndex)
         }
@@ -139,15 +142,24 @@
             document.querySelector(".initialText").innerHTML = spans
             initElements()
             document.querySelector(".title").innerHTML = "Text you are working on :"
-            document.querySelector("div.validateText").innerHTML = ""
+            document.querySelector("button.validateText").textContent = "Update text"
             document.querySelector(".generationTools").style.visibility = "visible"
         }
         let validateText = document.querySelector("button.validateText")
         validateText.addEventListener("click", () => {
-            if (inputText.value.trim() !== "") {
-                setInitialText(inputText.value)
+            if (validateText.textContent === "Update text") {
+                document.querySelector(".title").innerHTML = "Please provide the text to work on :"
+                document.querySelector(".initialText").innerHTML = `<input class="validateText" type="text"></input>`
+                inputText = document.querySelector("input.validateText")
+                document.querySelector("button.validateText").textContent = "Validate text"
+                document.querySelector(".generationTools").style.visibility = "hidden"
+                document.querySelector(".generateRegex").style.visibility = "inherit"
             } else {
-                inputText.value = ""
+                if (inputText.value.trim() !== "") {
+                    setInitialText(inputText.value)
+                } else {
+                    inputText.value = ""
+                }
             }
         })
 
@@ -161,6 +173,7 @@
             selectElements(0, elements.length-1)
             initClickIndexes()
             generateRegex.style.visibility = "visible"
+            validateLabel.style.visibility = "hidden"
             vscode.postMessage({ type: 'setLabel', startIndex: 0, endIndex: elements.length-1, label: labels[currentLabel] });
             currentLabel = "orange"
             commonLabelBtn.style.border = ""
@@ -182,6 +195,7 @@
                     elements[secondClickIndex].style.textDecoration = "none"
                     initClickIndexes()
                     generateRegex.style.visibility = "visible"
+                    validateLabel.style.visibility = "hidden"
                 }
             } catch (err) {
                 vscode.postMessage({ type: 'error', message: "Error : " + err });

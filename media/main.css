@@ -1,18 +1,17 @@
 body {
 	background-color: transparent;
-	font-size: 15px;
 }
 
-.title {
-	font-size: 17px;
+/* .title { */
+	/* font-size: 17px; */
 	/* text-decoration: underline; */
-}
+/* } */
 
 .generatedFindRegex {
 	font-weight: 700;
 	margin-top: 10px;
 	text-align: center;
-	font-size: 20px;
+	font-size: 17px;
 }
 
 .initialText {
@@ -21,7 +20,7 @@ body {
 	text-align: center;
 	padding: 8px;
 	margin-top: 10px;
-	font-size: 18px;
+	/* font-size: 17px; */
 }
 
 button {
@@ -33,13 +32,20 @@ button {
 }
 
 .labels {
-	margin-top: 5px;
+	display: inline-block;
+	margin: 5px;
 	border: solid 1px var(--vscode-foreground);
 	text-align: center;
 	padding: 10px;
 }
 
+.updateText {
+	margin-top: 5px;
+	visibility: collapse;
+}
+
 .labels button {
+	margin: 5px;
 	width: auto;
 }
 
@@ -57,12 +63,17 @@ button.validateText {
 }
 
 input.validateText {
-	font-size: 18px;
+	font-size: 17px;
+}
+
+.validateLabel {
+	visibility: hidden;
 }
 
 .character {
 	cursor: pointer;
 	color: white;
+	font-size: 17px;
 }
 
 .commonLabel {
@@ -76,8 +87,8 @@ input.validateText {
 }
 
 .optionalLabel {
-	background-color: greenyellow;
-	color: black;
+	background-color: green;
+	/* color: black; */
 }
 
 .commonLabel:hover {

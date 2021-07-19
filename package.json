@@ -11,6 +11,10 @@
 	"engines": {
 		"vscode": "^1.56.0"
 	},
+	"publisher": "St34my",
+	"repository": {
+		"directory": "."
+	},
 	"categories": [
 		"Other"
 	],
@@ -23,7 +27,7 @@
 			"activitybar": [
 				{
 					"id": "regex_generator",
-        	"title": "Regex Generator",
+					"title": "Regex Generator",
 					"icon": "media/dep.svg"
 				}
 			]
@@ -31,9 +35,9 @@
 		"views": {
 			"regex_generator": [
 				{
-						"type": "webview",
-						"id": "regexGeneratorInterface",
-						"name": "Interface"
+					"type": "webview",
+					"id": "regexGeneratorInterface",
+					"name": "Interface"
 				}
 			]
 		}
